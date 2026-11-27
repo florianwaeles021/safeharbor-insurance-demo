@@ -39,6 +39,26 @@ Detection: bandit, pip-audit, manual code review. Verification: 19 regression te
 
 **Dependencies:** Flask 2.2.0 to 3.1.3, Werkzeug 2.2.2 to 3.1.9, Jinja2 3.0.0 to 3.1.6, PyYAML 5.3.1 to 6.0.2. The unused `requests` was removed, which also dropped `idna` and `urllib3` (16 more CVEs).
 
+## GitHub scanning (repo: florianwaeles021/safeharbor-insurance-demo)
+| Source | `main` (vulnerable, 982052f) | PR #1 head (125528a) |
+|---|---|---|
+| CodeQL, extended suite | 12 alerts (4 critical, 6 high, 2 medium) | 0 open |
+| Dependabot | 22 alerts on 5 packages | closes automatically after merge to main |
+| Secret scanning | 0 | 0 |
+
+Why the counts differ: Dependabot counts advisories on the 5 pinned packages (22). pip-audit also sees transitive packages (idna, urllib3) and counts every advisory (59).
+CodeQL does not detect the access-control flaws (cookie-based admin role, missing ownership checks). Those came from code review and are covered by the regression tests and the Playwright before/after checks.
+
+## Playwright before/after (signed in as Alice, customer uid 1)
+| Request | Before | After |
+|---|---|---|
+| GET /policy/1 (own) | 200 | 200 |
+| GET /policy/3 (Bob's) | 200, Bob's data returned | 404 |
+| GET /documents/download?file=policy_3.txt | 200, Bob's document | 404 |
+| POST /claims policy_id=3 | 302, claim accepted | 404 |
+| GET /admin as customer | 403 | 403 |
+| GET /dashboard not signed in | 302 to /login | 302 to /login |
+
 ## How it was verified
 1. **Tests:** `tests/test_security.py`, 19 tests, all passing. Each asserts the safe behaviour (for example a customer gets 404 on another customer's policy, and an edited role cookie gets 403 on /admin).
 2. **Re-scan:** bandit 11 to 3 (all low); pip-audit 59 to 0.
