@@ -3,4 +3,4 @@
 <div class="card"><h2>File a new claim</h2><form method="post"><label>Policy</label><select name="policy_id">{% for p in policies %}<option value="{{ p.id }}">{{ p.number }} · {{ p.type }}</option>{% endfor %}</select>
 <label>What happened?</label><textarea name="description" id="description" rows="3"></textarea><button id="submit-claim">Submit claim</button></form></div>
 <div class="card"><h2>Your claims</h2><table id="claims-table"><tr><th>#</th><th>Policy</th><th>Description</th><th>Status</th></tr>
-{% for c in claims %}<tr><td>{{ c.id }}</td><td>{{ c.number }}</td><td class="desc">{{ c.description|safe }}</td><td><span class="badge pend">{{ c.status }}</span></td></tr>{% endfor %}</table></div>{% endblock %}
+{% for c in claims %}<tr><td>{{ c.id }}</td><td>{{ c.number }}</td><td class="desc">{{ c.description }}</td><td><span class="badge pend">{{ c.status }}</span></td></tr>{% endfor %}</table></div>{% endblock %}
